@@ -6,22 +6,23 @@ const songService = {};
 songService.addSong = async (req, res) => {
 	const data = req.body;
 
-	console.log(req.files);
+	// TODO check weather [req.files.thumbnailFile[0].path] 
+	// will return absolute path of file. like http://somehost/shdg/image.jpg
+	// there for we have to change thumbnail and audio path
+	const thumbnailPath = `${req.protocol}://${req.headers.host}/${req.files.thumbnailFile[0].path}`;
 
 	const newSong = await SongModel.create({
 		title: data.title,
 		album: data.album,
 		year: new Date(data.year),
 		audioFile: req.files.songFile[0].path,
-		thumbnail: req.files.thumbnailFile[0].path,
+		thumbnail: thumbnailPath,
 	});
 
 	res.json(newSong);
 };
 
 songService.allSongs = async (req, res) => {
-	console.log(req.hostname);
-	
 	const page = req.query.page ? Number(req.query.page) : 0;
 	const limit = req.query.limit ? Number(req.query.limit) : 20;
 	const offset = page * limit;
