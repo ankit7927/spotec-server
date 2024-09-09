@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const fs = require("fs");
 const sequelize = require("./config/conn");
 const { prepareDevMode } = require("./config/prepare");
 
