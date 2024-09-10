@@ -1,11 +1,13 @@
 require("dotenv").config();
 const express = require("express");
 const sequelize = require("./config/conn");
+const cors = require("cors")
 const { prepareDevMode } = require("./config/prepare");
 
 const app = express();
 const port = process.env.PORT || 5000;
 
+app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 if (process.env.NODE_ENV == "dev") {
