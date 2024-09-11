@@ -17,6 +17,7 @@ const SongModel = sequelize.define(
 		year: DataTypes.TIME,
 		thumbnail: DataTypes.STRING,
 		audioFile: DataTypes.STRING,
+		audioUrl: DataTypes.STRING,
 	},
 	{ timestamps: false },
 );
