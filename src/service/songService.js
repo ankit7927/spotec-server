@@ -109,7 +109,7 @@ songService.listenSong = async (req, res) => {
 		"Content-Range": `bytes ${start}-${end}/${audioSize}`,
 		"Accept-Ranges": "bytes",
 		"Content-Length": contentLength,
-		"Content-Type": "audio/mp4",
+		"Content-Type": "audio/mp3",
 	};
 	res.writeHead(206, headers);
 	const audioStream = fs.createReadStream(song.audioFile, { start, end });
