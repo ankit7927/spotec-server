@@ -12,22 +12,10 @@ const SongModel = sequelize.define(
 		title: {
 			type: DataTypes.STRING,
 			allowNull: false,
-			unique:true
+			unique: true,
 		},
 		album: DataTypes.STRING,
 		artist: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		composer: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		genre: {
-			type: DataTypes.STRING,
-			allowNull: true,
-		},
-		lyrics: {
 			type: DataTypes.STRING,
 			allowNull: true,
 		},

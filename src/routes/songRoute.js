@@ -6,8 +6,8 @@ router
 	.route("/song")
 	.post(
 		uploadMiddleware.fields([
-			{ name: "songFile", maxCount: 1 },
-			{ name: "thumbnailFile", maxCount: 1 },
+			{ name: "audio", maxCount: 1 },
+			{ name: "thumbnail", maxCount: 1 },
 		]),
 		songService.addSong,
 	)

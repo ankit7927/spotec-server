@@ -4,16 +4,16 @@ const fs = require("fs");
 const songService = {};
 
 songService.addSong = async (req, res) => {
-	const { title, artist, album, genre, composer, lyrics, year } = req.body;
+	const { title, artist, album, year } = req.body;
 
-	// TODO check weather [req.files.thumbnailFile[0].path]
+	// TODO check weather [req.files.thumbnail[0].path]
 	// will return absolute path of file. like http://somehost/shdg/image.jpg
 	// there for we have to change thumbnail and audio path
 
 	const filePath =
-		req.files.thumbnailFile == null
+		req.files.thumbnail == null
 			? "public/notfound.jpg"
-			: req.files.thumbnailFile[0].path;
+			: req.files.thumbnail[0].path;
 
 	const thumbnailPath = `${req.protocol}://${req.headers.host}/${filePath}`;
 
@@ -22,11 +22,8 @@ songService.addSong = async (req, res) => {
 			title: title,
 			album: album,
 			artist: artist,
-			genre: genre,
-			composer: composer,
-			lyrics: lyrics,
 			year: new Date(year),
-			audioFile: req.files.songFile[0].path,
+			audioFile: req.files.audio[0].path,
 			thumbnail: thumbnailPath,
 		});
 

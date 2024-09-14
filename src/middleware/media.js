@@ -2,8 +2,7 @@ const multer = require("multer");
 
 const diskStorage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		if (file.mimetype == "image/jpeg") cb(null, "assets/thumbnails");
-		else if (file.mimetype == "audio/mpeg") cb(null, "assets/audios");
+		cb(null, "assets");
 	},
 	filename: function (req, file, cb) {
 		const ext = file.originalname.split(".").pop();

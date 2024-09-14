@@ -14,7 +14,7 @@ app.use("/public", express.static("public"));
 if (process.env.NODE_ENV == "dev") {
 	const { prepareDevMode } = require("./config/prepare");
 	prepareDevMode();
-	app.use("/assets/thumbnails", express.static("assets/thumbnails"));
+	app.use("/assets", express.static("assets"));
 	const morgan = require("morgan");
 	app.use(morgan("dev"));
 }
