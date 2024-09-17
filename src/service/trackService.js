@@ -39,7 +39,7 @@ trackService.allTracks = async (req, res) => {
 	const offset = page * limit;
 
 	const tracks = await TrackModel.findAndCountAll({
-		attributes: { exclude: ["audioFile"] },
+		attributes: { exclude: ["trackFile"] },
 		offset: offset,
 		limit: limit,
 	});
@@ -51,9 +51,14 @@ trackService.allTracks = async (req, res) => {
 
 trackService.searchSong = async (req, res) => {
 	const query = req.query.query;
-	if (!query) return res.json([]);
+	const page = req.query.page ? Number(req.query.page) : 0;
+	const limit = req.query.limit ? Number(req.query.limit) : 20;
+	const offset = page * limit;
 
-	const result = await TrackModel.findAll({
+	if (!query)
+		return res.status(400).json({ error: "Search query is required" });
+
+	const result = await TrackModel.findAndCountAll({
 		where: {
 			[Op.or]: [
 				{
@@ -71,8 +76,12 @@ trackService.searchSong = async (req, res) => {
 		attributes: {
 			exclude: ["trackFile"],
 		},
+		offset: offset,
+		limit: limit,
 	});
 
+	result.page = page;
+	result.limit = limit;
 	return res.json(result);
 };
 
@@ -90,7 +99,7 @@ trackService.listenTrack = async (req, res) => {
 			attributes: ["trackFile"],
 		});
 
-		if (!track) return res.status(404).json({ message: "Track not found" });		
+		if (!track) return res.status(404).json({ message: "Track not found" });
 
 		const trackFile = track.trackFile;
 		const audioSize = fs.statSync(trackFile).size;
