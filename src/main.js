@@ -19,7 +19,7 @@ if (process.env.NODE_ENV == "dev") {
 	app.use(morgan("dev"));
 }
 
-app.use("/song", require("./routes/songRoute"));
+app.use("/api", require("./routes/trackRoute"));
 
 (async () => {
 	await sequelize.sync();

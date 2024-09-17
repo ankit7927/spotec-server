@@ -1,9 +1,9 @@
-const SongModel = require("../model/song");
+const TrackModel = require("../model/track");
 const { Op } = require("sequelize");
 const fs = require("fs");
-const songService = {};
+const trackService = {};
 
-songService.addSong = async (req, res) => {
+trackService.addTrack = async (req, res) => {
 	const { title, artist, album, year } = req.body;
 
 	// TODO check weather [req.files.thumbnail[0].path]
@@ -18,45 +18,42 @@ songService.addSong = async (req, res) => {
 	const thumbnailPath = `${req.protocol}://${req.headers.host}/${filePath}`;
 
 	try {
-		let newSong = await SongModel.create({
+		let newTrack = await TrackModel.create({
 			title: title,
 			album: album,
 			artist: artist,
 			year: new Date(year),
-			audioFile: req.files.audio[0].path,
+			trackFile: req.files.trackFile[0].path,
 			thumbnail: thumbnailPath,
 		});
 
-		newSong.audioUrl = `${req.protocol}://${req.headers.host}/song/listen/${newSong.id}`;
-		newSong = await newSong.save();
-
-		res.status(201).json(newSong);
+		res.status(201).json(newTrack);
 	} catch (error) {
 		res.status(400).json(error);
 	}
 };
 
-songService.allSongs = async (req, res) => {
+trackService.allTracks = async (req, res) => {
 	const page = req.query.page ? Number(req.query.page) : 0;
 	const limit = req.query.limit ? Number(req.query.limit) : 20;
 	const offset = page * limit;
 
-	const songs = await SongModel.findAndCountAll({
+	const tracks = await TrackModel.findAndCountAll({
 		attributes: { exclude: ["audioFile"] },
 		offset: offset,
 		limit: limit,
 	});
 
-	songs.page = page;
-	songs.limit = limit;
-	return res.json(songs);
+	tracks.page = page;
+	tracks.limit = limit;
+	return res.json(tracks);
 };
 
-songService.searchSong = async (req, res) => {
+trackService.searchSong = async (req, res) => {
 	const query = req.query.query;
 	if (!query) return res.json([]);
 
-	const result = await SongModel.findAll({
+	const result = await TrackModel.findAll({
 		where: {
 			[Op.or]: [
 				{
@@ -72,31 +69,31 @@ songService.searchSong = async (req, res) => {
 			],
 		},
 		attributes: {
-			exclude: ["audioFile"],
+			exclude: ["trackFile"],
 		},
 	});
 
 	return res.json(result);
 };
 
-songService.listenSong = async (req, res) => {
-	const songId = req.params.songId;
+trackService.listenTrack = async (req, res) => {
+	const trackId = req.params.trackId;
 
-	if (!songId) return res.status(400).json({ message: "Song ID required" });
+	if (!trackId) return res.status(400).json({ message: "Track ID required" });
 
 	const range = req.headers.range;
 	if (!range)
 		return res.status(400).json({ message: "Requires Range header" });
 
 	try {
-		const song = await SongModel.findByPk(songId, {
-			attributes: ["audioFile"],
+		const track = await TrackModel.findByPk(trackId, {
+			attributes: ["trackFile"],
 		});
 
-		if (!song) return res.status(404).json({ message: "Song not found" });
+		if (!track) return res.status(404).json({ message: "Track not found" });		
 
-		const audioFilePath = song.audioFile;
-		const audioSize = fs.statSync(audioFilePath).size;
+		const trackFile = track.trackFile;
+		const audioSize = fs.statSync(trackFile).size;
 		const CHUNK_SIZE = 10 ** 6; // 1 MB chunk size
 		const start = Number(range.replace(/\D/g, ""));
 		const end = Math.min(start + CHUNK_SIZE, audioSize - 1);
@@ -111,7 +108,7 @@ songService.listenSong = async (req, res) => {
 
 		res.writeHead(206, headers);
 
-		const audioStream = fs.createReadStream(audioFilePath, { start, end });
+		const audioStream = fs.createReadStream(trackFile, { start, end });
 
 		audioStream.on("error", (error) => {
 			console.error("Stream error:", error);
@@ -125,4 +122,4 @@ songService.listenSong = async (req, res) => {
 	}
 };
 
-module.exports = songService;
+module.exports = trackService;

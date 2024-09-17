@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/conn");
 
-const SongModel = sequelize.define(
-	"songs",
+const TrackModel = sequelize.define(
+	"tracks",
 	{
 		id: {
 			type: DataTypes.INTEGER,
@@ -21,10 +21,9 @@ const SongModel = sequelize.define(
 		},
 		year: DataTypes.TIME,
 		thumbnail: DataTypes.STRING,
-		audioFile: DataTypes.STRING,
-		audioUrl: DataTypes.STRING,
+		trackFile: DataTypes.STRING
 	},
 	{ timestamps: false },
 );
 
-module.exports = SongModel;
+module.exports = TrackModel;
