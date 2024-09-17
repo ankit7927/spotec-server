@@ -81,36 +81,48 @@ songService.searchSong = async (req, res) => {
 
 songService.listenSong = async (req, res) => {
 	const songId = req.params.songId;
-	console.log(songId);
 
-	if (!songId) return res.status(400).json({ message: "song id required" });
+	if (!songId) return res.status(400).json({ message: "Song ID required" });
 
 	const range = req.headers.range;
-	if (!range) return res.status(400).send("Requires Range header");
+	if (!range)
+		return res.status(400).json({ message: "Requires Range header" });
 
-	const song = await SongModel.findByPk(songId, {
-		attributes: {
-			include: ["audioFile"],
-		},
-	});
+	try {
+		const song = await SongModel.findByPk(songId, {
+			attributes: ["audioFile"],
+		});
 
-	if (!song) return res.status(400).send("song not found");
+		if (!song) return res.status(404).json({ message: "Song not found" });
 
-	const audioSize = fs.statSync(song.audioFile).size;
-	const CHUNK_SIZE = 10 ** 6;
-	const start = Number(range.replace(/\D/g, ""));
+		const audioFilePath = song.audioFile;
+		const audioSize = fs.statSync(audioFilePath).size;
+		const CHUNK_SIZE = 10 ** 6; // 1 MB chunk size
+		const start = Number(range.replace(/\D/g, ""));
+		const end = Math.min(start + CHUNK_SIZE, audioSize - 1);
+		const contentLength = end - start + 1;
 
-	const end = Math.min(start + CHUNK_SIZE, audioSize - 1);
-	const contentLength = end - start + 1;
-	const headers = {
-		"Content-Range": `bytes ${start}-${end}/${audioSize}`,
-		"Accept-Ranges": "bytes",
-		"Content-Length": contentLength,
-		"Content-Type": "audio/mp3",
-	};
-	res.writeHead(206, headers);
-	const audioStream = fs.createReadStream(song.audioFile, { start, end });
-	audioStream.pipe(res);
+		const headers = {
+			"Content-Range": `bytes ${start}-${end}/${audioSize}`,
+			"Accept-Ranges": "bytes",
+			"Content-Length": contentLength,
+			"Content-Type": "audio/mp3",
+		};
+
+		res.writeHead(206, headers);
+
+		const audioStream = fs.createReadStream(audioFilePath, { start, end });
+
+		audioStream.on("error", (error) => {
+			console.error("Stream error:", error);
+			res.sendStatus(500);
+		});
+
+		audioStream.pipe(res);
+	} catch (error) {
+		console.error("Error handling the request:", error);
+		res.sendStatus(500);
+	}
 };
 
 module.exports = songService;
