@@ -19,7 +19,11 @@ if (process.env.NODE_ENV == "dev") {
 	app.use(morgan("dev"));
 }
 
-app.use("/api", require("./routes/trackRoute"));
+const apiRouter = express.Router();
+apiRouter.use("/track", require("./routes/trackRoute"));
+apiRouter.use("/list", require("./routes/listRoute"));
+
+app.use("/api", apiRouter);
 
 (async () => {
 	await sequelize.sync();

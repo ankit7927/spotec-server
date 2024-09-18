@@ -85,6 +85,7 @@ trackService.searchSong = async (req, res) => {
 	return res.json(result);
 };
 
+// TODO use redis cache 
 trackService.listenTrack = async (req, res) => {
 	const trackId = req.params.trackId;
 
