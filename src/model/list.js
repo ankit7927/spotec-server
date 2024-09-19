@@ -14,6 +14,9 @@ const ListModel = sequelize.define(
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
+		description: {
+			type: DataTypes.TEXT,
+		},
 		private: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
@@ -23,7 +26,6 @@ const ListModel = sequelize.define(
 );
 
 ListModel.hasMany(TrackModel);
-TrackModel.belongsToMany(ListModel, { through:"junction", timestamps: false });
-
+TrackModel.belongsToMany(ListModel, { through: "junction", timestamps: false });
 
 module.exports = ListModel;
