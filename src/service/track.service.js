@@ -1,6 +1,7 @@
-const TrackModel = require("../model/track");
+const TrackModel = require("../model/track.model");
 const { Op } = require("sequelize");
 const fs = require("fs");
+const ListModel = require("../model/list.model");
 const trackService = {};
 
 trackService.addTrack = async (req, res) => {
@@ -44,21 +45,30 @@ trackService.allTracks = async (req, res) => {
 		limit: limit,
 	});
 
+	const lists = await ListModel.findAll({
+		limit: 5,
+		where: {
+			private: false,
+		},
+	});
+
+	tracks.lists = lists;
 	tracks.page = page;
 	tracks.limit = limit;
 	return res.json(tracks);
 };
 
-trackService.searchSong = async (req, res) => {
-	const query = req.query.query;
-	const page = req.query.page ? Number(req.query.page) : 0;
-	const limit = req.query.limit ? Number(req.query.limit) : 20;
-	const offset = page * limit;
+trackService.latestTracks = async () => {
+	return await TrackModel.findAll({
+		limit: 10,
+		attributes: {
+			exclude: ["year", "thumbnail", "trackFile", "listId"],
+		},
+	});
+};
 
-	if (!query)
-		return res.status(400).json({ error: "Search query is required" });
-
-	const result = await TrackModel.findAndCountAll({
+trackService.searchSong = async (query) => {
+	return await TrackModel.findAndCountAll({
 		where: {
 			[Op.or]: [
 				{
@@ -76,16 +86,11 @@ trackService.searchSong = async (req, res) => {
 		attributes: {
 			exclude: ["trackFile"],
 		},
-		offset: offset,
-		limit: limit,
+		limit: 20,
 	});
-
-	result.page = page;
-	result.limit = limit;
-	return res.json(result);
 };
 
-// TODO use redis cache 
+// TODO use redis cache
 trackService.listenTrack = async (req, res) => {
 	const trackId = req.params.trackId;
 

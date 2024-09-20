@@ -1,9 +1,14 @@
 const multer = require("multer");
-const uuidV6 = require("uuid").v6
+const { appConfig } = require("../config/app.config");
+const uuidV6 = require("uuid").v6;
 
 const diskStorage = multer.diskStorage({
 	destination: function (req, file, cb) {
-		cb(null, "assets");
+		const dir =
+			appConfig.nodeEnv == "dev"
+				? appConfig.middleware.media.devAssetsDir
+				: appConfig.middleware.media.proAssetsDir;
+		cb(null, dir);
 	},
 	filename: function (req, file, cb) {
 		const ext = file.originalname.split(".").pop();

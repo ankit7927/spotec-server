@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const ListModel = require("../model/list");
-const TrackModel = require("../model/track");
+const ListModel = require("../model/list.model");
+const TrackModel = require("../model/track.model");
 
 const listService = {
 	createList: async (req, res) => {
@@ -27,6 +27,7 @@ const listService = {
 		const list = await ListModel.findByPk(listId);
 		if (!list) return res.status(400).json({ error: "list not found" });
 		await list.destroy();
+		return res.status(200).json({ message: "list deleted" });
 	},
 
 	getList: async (req, res) => {
@@ -56,7 +57,7 @@ const listService = {
 		return res.json(result);
 	},
 
-	addTrack: async (req, res) => {
+	addTracks: async (req, res) => {
 		const { trackIds, listId } = req.body;
 		try {
 			if (trackIds.length == 0)
@@ -77,15 +78,16 @@ const listService = {
 			});
 
 			await list.addTracks(tracks);
-			return res.json(list);
+			return res.json({ message: "tracks added" });
 		} catch (error) {
 			console.log(error);
 			return res.status(400).json(error);
 		}
 	},
 
-	removeTrack: async (req, res) => {
+	removeTracks: async (req, res) => {
 		const { trackIds, listId } = req.body;
+
 		try {
 			if (trackIds.length == 0)
 				return res.status(400).json({ error: "track ids are empty" });
@@ -110,6 +112,39 @@ const listService = {
 			console.log(error);
 			return res.status(400).json(error);
 		}
+	},
+
+	latestLists: async () => {
+		return await ListModel.findAll({
+			limit: 4,
+			attributes: {
+				include: ["id", "name", "description"],
+				exclude: ["private"],
+			},
+			where: {
+				private: false,
+			},
+		});
+	},
+
+	searchList: async (query) => {
+		return await ListModel.findAndCountAll({
+			where: {
+				[Op.or]: [
+					{
+						name: {
+							[Op.substring]: query,
+						},
+					},
+					{
+						description: {
+							[Op.substring]: query,
+						},
+					},
+				],
+			},
+			limit: 20,
+		});
 	},
 };
 

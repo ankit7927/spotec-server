@@ -1,0 +1,36 @@
+const listService = require("../service/list.service");
+const trackService = require("../service/track.service");
+
+const router = require("express").Router();
+
+router.get("/home-feed", async (req, res) => {
+	const lists = await listService.latestLists();
+	const tracks = await trackService.latestTracks();
+	return res.json({
+		lists,
+		tracks,
+	});
+});
+
+router.get("/search", async (req, res) => {
+	const query = req.query.query;
+	if (!query)
+		return res.status(400).json({ error: "Search query is required" });
+
+	try {
+		const tracks = await trackService.searchSong(query);
+		const lists = await listService.searchList(query);
+
+		return res.json({
+			lists: lists.rows,
+			tracks: tracks.rows,
+		});
+	} catch (e) {
+		return res.json(e);
+	}
+});
+
+router.use("/track", require("./track.route"));
+router.use("/list", require("./list.route"));
+
+module.exports = router;

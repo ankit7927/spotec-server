@@ -1,29 +1,25 @@
 require("dotenv").config();
 const express = require("express");
-const sequelize = require("./config/conn");
+const sequelize = require("./config/conn.config");
 const cors = require("cors");
+const { appConfig, validateConfig } = require("./config/app.config");
+
+validateConfig();
 
 const app = express();
-const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/public", express.static("public"));
 
-if (process.env.NODE_ENV == "dev") {
-	const { prepareDevMode } = require("./config/prepare");
-	prepareDevMode();
-	app.use("/assets", express.static("assets"));
+if (appConfig.nodeEnv == "dev") {
+	app.use("/assets", express.static(appConfig.middleware.media.devAssetsDir));
 	const morgan = require("morgan");
 	app.use(morgan("dev"));
 }
 
-const apiRouter = express.Router();
-apiRouter.use("/track", require("./routes/trackRoute"));
-apiRouter.use("/list", require("./routes/listRoute"));
-
-app.use("/api", apiRouter);
+app.use("/api", require("./routes/api.route"));
 
 (async () => {
 	await sequelize.sync();
@@ -31,8 +27,8 @@ app.use("/api", apiRouter);
 		.authenticate()
 		.then(() => {
 			console.log(`\nconnected to database`);
-			app.listen(port, () => {
-				console.log(`server started on ${port}`);
+			app.listen(appConfig.server.port, () => {
+				console.log(`server started on ${appConfig.server.port}`);
 			});
 		})
 		.catch((err) => {

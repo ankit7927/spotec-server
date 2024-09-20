@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/conn");
-const TrackModel = require("./track");
+const sequelize = require("../config/conn.config");
+const TrackModel = require("./track.model");
 
 const ListModel = sequelize.define(
 	"lists",
