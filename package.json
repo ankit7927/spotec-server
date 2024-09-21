@@ -1,6 +1,6 @@
 {
 	"name": "express-server",
-	"version": "1.5.0",
+	"version": "1.8.1",
 	"main": "main.js",
 	"scripts": {
 		"start": "node src/main.js",
