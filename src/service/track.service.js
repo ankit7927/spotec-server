@@ -2,6 +2,7 @@ const TrackModel = require("../model/track.model");
 const { Op } = require("sequelize");
 const fs = require("fs");
 const ListModel = require("../model/list.model");
+const UserModel = require("../model/user.model");
 const trackService = {};
 
 trackService.addTrack = async (req, res) => {
@@ -88,6 +89,23 @@ trackService.searchSong = async (query) => {
 		},
 		limit: 20,
 	});
+};
+
+trackService.toggelFav = async (req, res) => {
+	const user = await UserModel.findByPk(req.user.id);
+	const track = await TrackModel.findByPk(req.params.trackId);
+
+	if (!track) return res.status(404).json({ message: "Track not found" });
+
+	const isFav = await user.hasTrack(track)
+	
+	if (isFav) {
+		await user.removeTrack(track);
+		return res.json({ message: "removed from fav" });
+	} else {
+		await user.addTrack(track);
+		return res.json({ message: "added to fav" });
+	}
 };
 
 // TODO use redis cache

@@ -92,7 +92,15 @@ userService.getUser = async (req, res) => {
 		attributes: {
 			exclude: ["password"],
 		},
-		include: [TrackModel, ListModel],
+		include: [
+			{
+				model: TrackModel,
+				attributes: {
+					exclude: ["trackFile", "year", "artist"],
+				},
+			},
+			ListModel,
+		],
 	});
 
 	return res.json(user);
