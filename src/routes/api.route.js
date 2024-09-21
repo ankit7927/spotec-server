@@ -32,5 +32,6 @@ router.get("/search", async (req, res) => {
 
 router.use("/track", require("./track.route"));
 router.use("/list", require("./list.route"));
+router.use("/user", require("./user.route"))
 
 module.exports = router;
