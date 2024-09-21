@@ -1,6 +1,6 @@
 var jwt = require("jsonwebtoken");
 
-const authMiddleware = (isAccess) => {
+const authMiddleware = (isAccess = true) => {
 	return (req, res, next) => {
 		const token =
 			req.headers.token ||
