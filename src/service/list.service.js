@@ -1,11 +1,14 @@
 const { Op } = require("sequelize");
 const ListModel = require("../model/list.model");
 const TrackModel = require("../model/track.model");
+const UserModel = require("../model/user.model");
 
 const listService = {
 	createList: async (req, res) => {
 		const data = req.body;
+		const user = await UserModel.findByPk(req.user.id);
 		const newList = await ListModel.create(data);
+		user.addLists([newList]);
 		return res.json(newList);
 	},
 
