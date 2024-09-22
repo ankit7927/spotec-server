@@ -4,8 +4,10 @@ const trackService = require("../service/track.service");
 const router = require("express").Router();
 
 router.get("/home-feed", async (req, res) => {
-	const lists = await listService.latestLists();
-	const tracks = await trackService.latestTracks();
+	const [tracks, lists] = await Promise.all([
+		listService.latestLists(),
+		trackService.latestTracks(),
+	]);
 	return res.json({
 		lists,
 		tracks,
@@ -18,8 +20,10 @@ router.get("/search", async (req, res) => {
 		return res.status(400).json({ error: "Search query is required" });
 
 	try {
-		const tracks = await trackService.searchSong(query);
-		const lists = await listService.searchList(query);
+		const [tracks, lists] = await Promise.all([
+			trackService.searchSong(query),
+			listService.searchList(query),
+		]);
 
 		return res.json({
 			lists: lists.rows,
@@ -32,6 +36,6 @@ router.get("/search", async (req, res) => {
 
 router.use("/track", require("./track.route"));
 router.use("/list", require("./list.route"));
-router.use("/user", require("./user.route"))
+router.use("/user", require("./user.route"));
 
 module.exports = router;

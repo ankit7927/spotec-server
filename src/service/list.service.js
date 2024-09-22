@@ -8,7 +8,7 @@ const listService = {
 		const data = req.body;
 		const user = await UserModel.findByPk(req.user.id);
 		const newList = await ListModel.create(data);
-		user.addLists([newList]);
+		user.addList(newList);
 		return res.json(newList);
 	},
 

@@ -74,6 +74,9 @@ const validateConfig = () => {
 			throw new Error(
 				"production assets dir is not defined in enviroment",
 			);
+
+		if (!process.env.ACCESS_SECRET || !process.env.REFRESH_SECRET)
+			throw new Error("JWT tokens are not defined in enviroment");
 	} else {
 		const fs = require("fs");
 		if (!fs.existsSync(appConfig.middleware.media.devAssetsDir))

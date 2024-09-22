@@ -92,13 +92,15 @@ trackService.searchSong = async (query) => {
 };
 
 trackService.toggelFav = async (req, res) => {
-	const user = await UserModel.findByPk(req.user.id);
-	const track = await TrackModel.findByPk(req.params.trackId);
+	const [user, track] = Promise.all([
+		UserModel.findByPk(req.user.id),
+		TrackModel.findByPk(req.params.trackId),
+	]);
 
 	if (!track) return res.status(404).json({ message: "Track not found" });
 
-	const isFav = await user.hasTrack(track)
-	
+	const isFav = await user.hasTrack(track);
+
 	if (isFav) {
 		await user.removeTrack(track);
 		return res.json({ message: "removed from fav" });
@@ -119,6 +121,8 @@ trackService.listenTrack = async (req, res) => {
 		return res.status(400).json({ message: "Requires Range header" });
 
 	try {
+
+		// TODO fetch track from cache server first
 		const track = await TrackModel.findByPk(trackId, {
 			attributes: ["trackFile"],
 		});
