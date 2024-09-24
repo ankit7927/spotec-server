@@ -4,7 +4,7 @@ const trackService = require("../service/track.service");
 const router = require("express").Router();
 
 router.get("/home-feed", async (req, res) => {
-	const [tracks, lists] = await Promise.all([
+	const [lists, tracks] = await Promise.all([
 		listService.latestLists(),
 		trackService.latestTracks(),
 	]);

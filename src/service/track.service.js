@@ -63,7 +63,7 @@ trackService.latestTracks = async () => {
 	return await TrackModel.findAll({
 		limit: 10,
 		attributes: {
-			exclude: ["year", "thumbnail", "trackFile", "listId"],
+			exclude: ["year", "trackFile", "listId"],
 		},
 	});
 };
