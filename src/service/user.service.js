@@ -3,6 +3,7 @@ var bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const TrackModel = require("../model/track.model");
 const ListModel = require("../model/list.model");
+const redisClient = require("../config/redis.config");
 const userService = {};
 
 userService.login = async (req, res) => {
@@ -85,7 +86,10 @@ userService.register = async (req, res) => {
 };
 
 userService.getUser = async (req, res) => {
-	const user = await UserModel.findOne({
+	let user = await redisClient.get(req.user.id);
+	if (user) return res.json(user);
+
+	user = await UserModel.findOne({
 		where: {
 			id: req.user.id,
 		},
@@ -103,6 +107,7 @@ userService.getUser = async (req, res) => {
 		],
 	});
 
+	await redisClient.set(req.user.id, JSON.stringify(user))
 	return res.json(user);
 };
 

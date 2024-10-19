@@ -3,6 +3,7 @@ const express = require("express");
 const sequelize = require("./config/conn.config");
 const cors = require("cors");
 const { appConfig, validateConfig } = require("./config/app.config");
+const redisClient = require("./config/redis.config");
 
 validateConfig();
 
@@ -25,8 +26,15 @@ app.use("/api", require("./routes/api.route"));
 	await sequelize.sync();
 	sequelize
 		.authenticate()
-		.then(() => {
+		.then(async () => {
 			console.log(`\nconnected to database`);
+
+			redisClient.on("error", (error) =>
+				console.error(`Error : ${error}`),
+			);
+			redisClient.on("connect", () => console.log("connected to redis"));
+			await redisClient.connect();
+
 			app.listen(appConfig.server.port, () => {
 				console.log(`server started on ${appConfig.server.port}`);
 			});

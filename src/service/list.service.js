@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const ListModel = require("../model/list.model");
 const TrackModel = require("../model/track.model");
 const UserModel = require("../model/user.model");
+const redisClient = require("../config/redis.config");
 
 const listService = {
 	createList: async (req, res) => {
@@ -35,7 +36,10 @@ const listService = {
 
 	getList: async (req, res) => {
 		const listId = req.params.listId;
-		const list = await ListModel.findByPk(listId, {
+		let list = await redisClient.get(listId);
+		if (list) return res.json(list);
+
+		list = await ListModel.findByPk(listId, {
 			include: {
 				model: TrackModel,
 				attributes: {
@@ -45,11 +49,12 @@ const listService = {
 		});
 
 		if (!list) return res.status(400).json({ error: "list not found" });
+		await redisClient.set(listId, JSON.stringify(list));
 		return res.json(list);
 	},
 
 	allList: async (req, res) => {
-		const result = await ListModel.findAll({
+		result = await ListModel.findAll({
 			where: {
 				private: false,
 			},

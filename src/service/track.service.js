@@ -1,5 +1,6 @@
 const TrackModel = require("../model/track.model");
 const { Op } = require("sequelize");
+const redisClient = require("../config/redis.config");
 const fs = require("fs");
 const ListModel = require("../model/list.model");
 const UserModel = require("../model/user.model");
@@ -121,13 +122,19 @@ trackService.listenTrack = async (req, res) => {
 		return res.status(400).json({ message: "Requires Range header" });
 
 	try {
+		let track = await redisClient.get(trackId);
+		track = JSON.parse(track);
 
-		// TODO fetch track from cache server first
-		const track = await TrackModel.findByPk(trackId, {
-			attributes: ["trackFile"],
-		});
+		if (!track) {
+			console.log("getting form database");
+			track = await TrackModel.findByPk(trackId, {
+				attributes: ["trackFile"],
+			});
 
-		if (!track) return res.status(404).json({ message: "Track not found" });
+			if (!track)
+				return res.status(404).json({ message: "Track not found" });
+			await redisClient.set(trackId, JSON.stringify(track));
+		}
 
 		const trackFile = track.trackFile;
 		const audioSize = fs.statSync(trackFile).size;

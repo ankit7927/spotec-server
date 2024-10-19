@@ -14,7 +14,7 @@ const appConfig = {
 			database: "songdb",
 		},
 		proDatabase: {
-			dialect: process.env.DIALECT,
+			dialect: process.env.DB_DIALECT,
 			username: process.env.DB_USER,
 			password: process.env.DB_PASS,
 			host: process.env.DB_HOST,
@@ -22,6 +22,7 @@ const appConfig = {
 			database: process.env.DB_NAME,
 			logging: false,
 		},
+		redis: process.env.REDIS_HOST
 	},
 	middleware: {
 		media: {
@@ -30,7 +31,7 @@ const appConfig = {
 				{ name: "thumbnail", maxCount: 1 },
 			],
 			devAssetsDir: process.env.DEV_ASSETS_DIR || "assets",
-			proAssetsDir: process.env.PRO_ASSETS_DIR,
+			proAssetsDir: process.env.PRO_ASSETS_DIR || "assets",
 		},
 	},
 };
@@ -40,6 +41,11 @@ const validateConfig = () => {
 		throw new Error("node env or port is not defined in enviroment");
 
 	if (appConfig.nodeEnv == "pro") {
+		if (!appConfig.database.redis)
+			throw new Error(
+				"production redis client host is not defined in enviroment",
+			);
+
 		if (!appConfig.database.proDatabase.dialect)
 			throw new Error(
 				"production database dialect is not defined in enviroment",
