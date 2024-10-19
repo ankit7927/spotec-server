@@ -6,8 +6,6 @@ WORKDIR /spotec-server
 
 COPY . .
 
-RUN npm i pm2 -g
-
 RUN npm i
 
-EXPOSE 5000
+EXPOSE 8000
