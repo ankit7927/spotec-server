@@ -1,14 +1,14 @@
 services:
-  client: 
-    build: 
-      context: ./react-client
+  client:
+    build:
+      context: ../react-client
       dockerfile: dockerfile
-    
+
     image: spotec-client
     container_name: spotec-client
 
     env_file:
-      - ./react-client/.env
+      - ../react-client/.env
 
     ports:
       - 3000:3000
@@ -19,33 +19,69 @@ services:
     command: npm run dev
 
   server:
-    build: 
-      context: ./express-server
+    build:
+      context: .
       dockerfile: dockerfile
 
     image: spotec-server
     container_name: spotec-server
+    restart: unless-stopped
 
     env_file:
-      - /express-server/.env
+      - .env
 
     ports:
       - 8000:8000
-    
+
+    volumes:
+      - spotec_server_volume:/spotecserver
+
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
 
     command: npm run start
 
-    
-  database: 
+  database:
     image: mysql:9.0
     container_name: spotec-db
+    restart: unless-stopped
+
+    env_file:
+      - .env
 
     environment:
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_DATABASE: songdb
-        MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_PASSWORD: ${DB_PASS}
 
     ports:
       - 3306:3306
+
+    volumes:
+      - spotec_data_volume:/var/lib/mysql
+
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  redis:
+    image: redis
+    container_name: spotec-cache
+
+    volumes:
+      - spotec_cache_volume:/data
+
+    ports:
+      - 6379:6379
+
+volumes:
+  spotec_server_volume:
+  spotec_data_volume:
+  spotec_cache_volume:

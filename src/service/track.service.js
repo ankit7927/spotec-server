@@ -126,7 +126,6 @@ trackService.listenTrack = async (req, res) => {
 		track = JSON.parse(track);
 
 		if (!track) {
-			console.log("getting form database");
 			track = await TrackModel.findByPk(trackId, {
 				attributes: ["trackFile"],
 			});

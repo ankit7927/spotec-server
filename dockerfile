@@ -8,4 +8,8 @@ COPY . .
 
 RUN npm i
 
+RUN cd ..
+
+RUN mkdir assets
+
 EXPOSE 8000
