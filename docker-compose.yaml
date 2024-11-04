@@ -14,7 +14,11 @@ services:
       - 3000:3000
 
     depends_on:
-      - server
+      server:
+          condition: service_healthy
+    
+    networks:
+      - spotec-network
 
     command: npm run dev
 
@@ -35,7 +39,8 @@ services:
 
     volumes:
       - spotec_server_volume:/spotecserver
-
+    networks:
+      - spotec-network
     depends_on:
       database:
         condition: service_healthy
@@ -60,7 +65,8 @@ services:
 
     ports:
       - 3306:3306
-
+    networks:
+      - spotec-network
     volumes:
       - spotec_data_volume:/var/lib/mysql
 
@@ -77,11 +83,20 @@ services:
 
     volumes:
       - spotec_cache_volume:/data
-
+    networks:
+      - spotec-network
     ports:
       - 6379:6379
 
 volumes:
   spotec_server_volume:
+    name: "server-volume"
   spotec_data_volume:
+    name: "data-volume"
   spotec_cache_volume:
+    name: "cache-volume"
+
+networks:
+  spotec-network:
+    name: "spotec-network"
+    driver: bridge
