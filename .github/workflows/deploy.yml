@@ -33,9 +33,6 @@ jobs:
     runs-on: self-hosted
 
     steps:
-        - name: go to project dir
-          run: cd /home/ubuntu/spotec/server
-
         - name: down all the services
           run: docker compose -f server-compose.yml down
         
