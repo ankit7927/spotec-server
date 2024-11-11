@@ -4,7 +4,7 @@ services:
       context: ../react-client
       dockerfile: dockerfile
 
-    image: spotec-client
+    image: ankit8424/spotec-client
     container_name: spotec-client
 
     env_file:
@@ -15,8 +15,8 @@ services:
 
     depends_on:
       server:
-          condition: service_healthy
-    
+        condition: service_healthy
+
     networks:
       - spotec-network
 
@@ -27,7 +27,7 @@ services:
       context: .
       dockerfile: dockerfile
 
-    image: spotec-server
+    image: ankit8424/spotec-server
     container_name: spotec-server
     restart: unless-stopped
 
@@ -39,8 +39,10 @@ services:
 
     volumes:
       - spotec_server_volume:/spotecserver
+
     networks:
       - spotec-network
+
     depends_on:
       database:
         condition: service_healthy
@@ -71,7 +73,7 @@ services:
       - spotec_data_volume:/var/lib/mysql
 
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       retries: 5
       start_period: 30s
